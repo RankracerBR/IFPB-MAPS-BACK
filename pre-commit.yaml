@@ -1,0 +1,10 @@
+default_language_version:
+  python: python3.13.3
+
+repos:
+  - repo: https://github.com/pycqa/pylint
+    rev: v2.13.5
+    hooks:
+      - id: pylint
+        name: Check pylint issues
+        types: [python]
