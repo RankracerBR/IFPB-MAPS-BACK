@@ -8,11 +8,11 @@ class UsuarioSchema(Schema):
     senha: str
 
 
-class VerificacaoASchema(Schema):
+class VerificacaoSchema(Schema):
     email: str
-    senha: str
+    nome: str
 
 class LoginSchema(Schema):
     email: str
     senha: str
-    
+
