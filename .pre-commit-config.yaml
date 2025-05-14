@@ -1,5 +1,7 @@
 default_language_version:
-  python: python3.13.3
+  python: python3.12.3
+
+exclude: '^(Libs/|venv/|.venv/|env/|Lib/)'
 
 repos:
   - repo: https://github.com/pycqa/pylint
