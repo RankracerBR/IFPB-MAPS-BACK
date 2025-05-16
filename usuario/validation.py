@@ -29,8 +29,8 @@ class ValidacaoUsuario:
             return 400, error_dict
 
     @staticmethod
-    def valida_token_usuario(email_usuario, token):
-        cached_token = cache.get(email_usuario)
+    def valida_token_usuario(email, token):
+        cached_token = cache.get(email)
         print(f"Cached token: {cached_token}, Provided token: {token}")
         return cached_token == token
 
@@ -45,5 +45,5 @@ class ValidacaoUsuario:
 
     @staticmethod
     def valida_email_usuario(email):
-        if Usuario.objects.filter(email_usuario=email).exists():
+        if Usuario.objects.filter(email=email).exists():
             raise HttpError(400, {"error": "O email já está registrado."})

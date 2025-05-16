@@ -22,6 +22,7 @@ api_usuario = NinjaAPI(urls_namespace="usuario")
 
 SECRET_KEY2 = os.getenv("SECRET_KEY2")
 
+
 class UsuarioApi:
     @staticmethod
     @api_usuario.post('/verificacao_email')
@@ -48,25 +49,37 @@ class UsuarioApi:
             return {"message": "Verificação de email feita com sucesso!"}
         except Exception as e:
             return {"error": str(e)}
-        
+
     @staticmethod
-    @api_usuario.post('/criar_conta', response={200: UsuarioSchema})
-    def criar_conta(request, usuario: UsuarioSchema):
+    @api_usuario.post('/criar_conta', response={
+        200: UsuarioSchema,
+        400: dict,
+        401: dict  # For invalid token
+    })
+    def criar_conta(request, token: str = None, usuario: UsuarioSchema = None):
         try:
+            # Validate token first
+            if not token or not cache.get(usuario.email) == token:
+                return 401, {"error": "Token inválido ou expirado"}
+                
+            # Rest of your validation
             email_usuario = usuario.email
             senha_usuario = usuario.senha
             ValidacaoUsuario.valida_email_usuario(email_usuario)
             ValidacaoUsuario.validacao_senha_usuario(senha_usuario)
             
             usuario_info = usuario.model_dump()
-            usuario_info["senha_usuario"] = make_password(usuario_info["senha_usuario"])
+            usuario_info["senha"] = make_password(usuario_info["senha"])
             instancia_usuario = Usuario.objects.create(**usuario_info)
             
-            return UsuarioSchema.model_validate(instancia_usuario)
+            # Clear the token after successful account creation
+            cache.delete(usuario.email)
+            
+            return 200, UsuarioSchema.model_validate(instancia_usuario)
             
         except Exception as e:
             return 400, {"error": str(e)}
-    
+
     @staticmethod
     @api_usuario.post("/login", response=UsuarioSchema)
     def login_usuario(request, data: LoginSchema):
