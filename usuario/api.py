@@ -12,6 +12,7 @@ import hashlib
 import secrets
 from datetime import datetime, timedelta
 import os
+import jwt
 
 from .models import Usuario
 from .schemas import UsuarioSchema, VerificacaoSchema, LoginSchema
@@ -84,7 +85,7 @@ class UsuarioApi:
     @api_usuario.post("/login", response=UsuarioSchema)
     def login_usuario(request, data: LoginSchema):
         try:
-            usuario = Usuario.objects.filter(email_usuario=data.email).first()
+            usuario = Usuario.objects.filter(email=data.email).first()
             
             if not usuario:
                 return JsonResponse({"error": "usuário não encontrado"}, status=404)
@@ -93,13 +94,13 @@ class UsuarioApi:
                 return JsonResponse({"error": "Senha incorreto"}, status=400)
             
             tempo_expiracao = datetime.now() + timedelta(days=1)
-            # token = jwt.encode(
-            #     {"email_usuario": usuario.email, "exp": tempo_expiracao},
-            #     SECRET_KEY2,
-            #     algorithm="HS256",
-            # )
+            token = jwt.encode(
+                {"email": usuario.email, "exp": tempo_expiracao},
+                SECRET_KEY2,
+                algorithm="HS256",
+            )
             
-            # return JsonResponse({"message": "Login bem-sucedido", "token": token})
+            return JsonResponse({"message": "Login bem-sucedido", "token": token})
             
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=500)
